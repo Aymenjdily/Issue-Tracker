@@ -42,7 +42,7 @@ const IssueForm = ({ issue }: Props) => {
       } else {
         const response = await axios.post("/api/issues", data);
         if (response.status === 201) {
-          router.push("/issues");
+          router.push("/issues/list");
           router.refresh()
           reset();
           setIsSubmitting(false);
