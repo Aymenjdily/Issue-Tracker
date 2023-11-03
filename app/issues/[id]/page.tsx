@@ -1,6 +1,6 @@
 import prisma from "@/prisma/client";
 import { notFound } from "next/navigation";
-import React from "react";
+import React, { cache } from "react";
 import { Grid, Box, Flex } from "@radix-ui/themes";
 import EditIssueButton from "./EditIssueButton";
 import IssueDetails from "./IssueDetails";
@@ -13,13 +13,13 @@ interface Props {
   params: { id: string };
 }
 
+const fetchUser = cache((issueId: string) => {
+  return prisma.issue.findUnique({ where: { id: issueId }})
+})
+
 const IssueDetailPage = async ({ params }: Props) => {
   const session = await getServerSession(authOptions);
-  const issue = await prisma.issue.findUnique({
-    where: {
-      id: params.id,
-    },
-  });
+  const issue = await fetchUser(params.id)
 
   if (!issue) notFound;
 
@@ -44,7 +44,7 @@ const IssueDetailPage = async ({ params }: Props) => {
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props){
-  const issue = await prisma.issue.findUnique({ where: { id: params.id }})
+  const issue = await fetchUser(params.id)
 
   return {
     title: issue?.title,
